@@ -4,8 +4,6 @@ import numpy as np
 import random
 from copy import deepcopy
 
-#test
-
 pg.init()
 
 GAME_WIDTH, GAME_HEIGHT = 150, 100
