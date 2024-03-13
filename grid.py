@@ -27,6 +27,8 @@ class Grid:
         if 1 <= new_x < self.width - 1 and 1 <= new_y < self.height - 1:
             target_pixel = self.intermediate_grid[new_x][new_y]
             if target_pixel != pixel_id:
+                if target_pixel == 8 and new_x != x:
+                    return False
                 if target_pixel == 0:
                     self.intermediate_grid[new_x][new_y] = pixel_id
                     self.intermediate_grid[x][y] = 0

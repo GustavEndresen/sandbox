@@ -145,8 +145,7 @@ class WoodBehavior(FallingBehavior):
             for i in range(grid.height - y):
                 if grid.pixels[x][y + i] == 8:
                     height += 1
-                else:
-                    break
+            
             branch_side = random.choice([-1, 1])
             # if random.randrange(1, 10) == 1 and not grid.pixels[x + branch_side][y + 1] == 8:
             #     grid.intermediate_grid[x + branch_side][y] = 8
