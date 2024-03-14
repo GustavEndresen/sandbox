@@ -6,9 +6,46 @@ import numpy as np
 #level 3 subclasses
 class SteamBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):
-        if ((grid.pixels[x][y - 1] != 0) or y < 1) and grid.pixels[x][y + 1] == 0:
-            if random.randrange(1, 100) == 1:
-                grid.intermediate_grid[x][y] = 2
+        if ((grid.pixels[x][y - 1] != 0) or y < 1) and grid.pixels[x][y + 1] == 0 and random.randrange(1, 100) == 1:          
+            grid.intermediate_grid[x][y] = 2
+        elif grid.pixels[x][y + 1] == 0 and random.randrange(1, 1000) == 1:
+            can_strike = True
+            for i in range(grid.height - y):
+                if grid.pixels[x][y - 1] == 3:
+                    continue
+                elif grid.pixels[x][y - 1] != 0:
+                    
+                    break
+                else:
+                    can_strike = False
+                    break
+            if can_strike:
+                n_x = x
+                n_y = y
+                for i in range(100):
+                    can_fall_left = False
+                    can_fall_right = False
+                    if grid.pixels[n_x + 1][n_y + 1] == 0:
+                        can_fall_right = True
+                    if grid.pixels[n_x - 1][n_y + 1] == 0:
+                        can_fall_left = True
+                    if can_fall_left and can_fall_right:              
+                        n_x += random.choice([-1, 1])
+                        n_y += 1
+                    elif can_fall_right:                      
+                        n_x += 1
+                        n_y += 1
+                    elif can_fall_left:                      
+                        n_x -= 1
+                        n_y += 1
+                    if n_x < grid.width - 1 and n_y < grid.height - 1 and n_x > 0:   
+                        grid.intermediate_grid[n_x][n_y] = 13
+                    else:
+                        break
+                    if grid.pixels[n_x][n_y + 1] != 0 and grid.pixels[n_x][n_y + 1] != 3 and grid.pixels[n_x][n_y + 1] != 2:
+                        for i in range(5):
+                            grid.intermediate_grid[n_x + random.choice([-1, 1])][n_y + random.choice([-1, 1])] = 10
+                        break
         else:
             super().update(pixel, x, y, grid)
 
@@ -219,7 +256,7 @@ class DynamiteBehavior(FallingBehavior):
             if touching_fire != None or touching_lava != None:
                 #explode
                 rays = 20
-                total_force = 1000
+                total_force = 500
                 dead_rays = []
                 for i in range(rays):
                     angle = i * (np.pi / rays * 2)
@@ -231,15 +268,14 @@ class DynamiteBehavior(FallingBehavior):
                         if new_pos_x < grid.width and new_pos_x > 0 and new_pos_y < grid.height and new_pos_y > 0:
                             checked_pixel = grid.pixels[new_pos_x][new_pos_y]
                         
-                            if checked_pixel == 4:
-                                total_force += 50
-                                dead_rays.append(i)
+                            if checked_pixel == 4 or checked_pixel == 13:
+                                total_force += j * 5
+                    
                                 break
                         else:
                             break
                 for i in range(rays):
-                    if dead_rays.count(i) > 0:
-                        continue
+                   
                     angle = i * (np.pi / rays * 2)
                     explosion_dir = Vector2(np.sin(angle), np.cos(angle))
                     for j in range(int(total_force / rays) + random.randrange(1, 10)):
@@ -248,9 +284,15 @@ class DynamiteBehavior(FallingBehavior):
 
                         if new_pos_x < grid.width and new_pos_x > 0 and new_pos_y < grid.height and new_pos_y > 0:
                             checked_pixel = grid.pixels[new_pos_x][new_pos_y]
-                            if checked_pixel != 4:
-                                if random.randrange(1, j + 2) == 1:
+                            if checked_pixel != 4 and checked_pixel != 13:
+                                if random.randrange(1, int(j / 4) + 2) == 1:
                                     grid.intermediate_grid[new_pos_x][new_pos_y] = 10
+                            else:
+                                break
             
                         else:
                             break
+
+class ElectricityBehavior():
+    def update(self, pixel, x, y, grid):
+        grid.intermediate_grid[x][y] = 0

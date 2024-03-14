@@ -59,6 +59,7 @@ class GasBehavior(RisingBehavior):
                 can_move_right = True
             if grid.pixels[x - 1][y] == 0:
                 can_move_left = True
+            
                 
             if can_move_right and can_move_left:
                 grid.move_pixel_if_possible(x, y, x + random.choice([-1, 1]), y, pixel)

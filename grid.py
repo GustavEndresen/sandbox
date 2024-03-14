@@ -27,6 +27,8 @@ class Grid:
         if 1 <= new_x < self.width - 1 and 1 <= new_y < self.height - 1:
             target_pixel = self.intermediate_grid[new_x][new_y]
             if target_pixel != pixel_id:
+                if target_pixel == 13:
+                    return False
                 if target_pixel == 8 and new_x != x:
                     return False
                 if target_pixel == 0:
@@ -60,52 +62,21 @@ class Grid:
 
         update_order = [(x, y) for x in range(1, self.width - 1) for y in range(1, self.height - 1)]
         random.shuffle(update_order)  # Randomize update order
-
-        def check_around(x, y, target):
-            
-            if self.pixels[x][y + 1] == target and y + 1 < self.height - 1:
-                return (x, y + 1)
-            elif self.pixels[x][y - 1] == target and y - 1 > 1:
-                return (x, y - 1)
-            elif self.pixels[x + 1][y] == target and x + 1 < self.width - 1:
-                return (x + 1, y)
-            elif self.pixels[x - 1][y] == target and x - 1 > 1:
-                return (x - 1, y)
-            return None
-
-        def move_pixel_if_possible(x, y, new_x, new_y, pixel_id):
-            if 1 <= new_x < self.width - 1 and 1 <= new_y < self.height - 1:
-                target_pixel = self.intermediate_grid[new_x][new_y]
-                if target_pixel != pixel_id:
-                    if target_pixel == 0:
-                        self.intermediate_grid[new_x][new_y] = pixel_id
-                        self.intermediate_grid[x][y] = 0
-                        return True
-                    if target_pixel == 2 or target_pixel == 5:
-                        if pixel_id == 1 or pixel_id == 3 or pixel_id == 6 or pixel_id == 4:
-                            self.intermediate_grid[new_x][new_y] = pixel_id
-                            self.intermediate_grid[x][y] = target_pixel
-                            return True
-                    if target_pixel != 0:
-                        if (pixel_id == 3 or (pixel_id == 5 and new_y < y) or pixel_id == 11) and not (target_pixel == 3 or target_pixel == 5 or target_pixel == 11): #swap positions if fire, steam or smoke                        
-                            self.intermediate_grid[new_x][new_y] = pixel_id
-                            self.intermediate_grid[x][y] = target_pixel
-                            return True
-            return False
         
         behaviors = [
-            SandBehavior(),     #1
-            WaterBehavior(),    #2
-            SteamBehavior(),    #3
-            StoneBehavior(),    #4
-            LavaBehavior(),     #5
-            DirtBehavior(),     #6
-            GrassBehavior(),    #7
-            WoodBehavior(),     #8
-            LeafBehavior(),     #9
-            FireBehavior(),     #10
-            SmokeBehavior(),    #11
-            DynamiteBehavior(), #12
+            SandBehavior(),         #1
+            WaterBehavior(),        #2
+            SteamBehavior(),        #3
+            StoneBehavior(),        #4
+            LavaBehavior(),         #5
+            DirtBehavior(),         #6
+            GrassBehavior(),        #7
+            WoodBehavior(),         #8
+            LeafBehavior(),         #9
+            FireBehavior(),         #10
+            SmokeBehavior(),        #11
+            DynamiteBehavior(),     #12
+            ElectricityBehavior()   #13
         ]
         for x, y in update_order:
             pixel = self.pixels[x][y] 

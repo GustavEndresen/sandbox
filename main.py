@@ -77,6 +77,8 @@ def render(grid):
                     color = [(10 + sand_noise[x][y]) / dist_to_air, (10 + sand_noise[x][y]) / dist_to_air, (10 + sand_noise[x][y]) / dist_to_air]
                 elif pixel == 12:
                     color = [int(200 / dist_to_air), int((10 + sand_noise[x][y]) / dist_to_air), int(50 / dist_to_air)]
+                elif pixel == 13:
+                    color = [255, 255, 0]
             color[0] *= 1.5
             color[1] *= 1.5
             color[2] *= 1.5
@@ -132,6 +134,8 @@ while running:
                 pixel_type = 10
             elif event.key == pg.K_w:
                 pixel_type = 12
+            elif event.key == pg.K_e:
+                pixel_type = 13
 
     mouse_pos = pg.mouse.get_pos()
     for i in range(1):
