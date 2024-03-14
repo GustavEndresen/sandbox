@@ -79,6 +79,11 @@ def render(grid):
                     color = [int(200 / dist_to_air), int((10 + sand_noise[x][y]) / dist_to_air), int(50 / dist_to_air)]
                 elif pixel == 13:
                     color = [255, 255, 0]
+                elif pixel == 14:
+                    color = [255, 20 + sand_noise[x][y] * 2, 0]
+                elif pixel == 15:
+                    color = [(20 + sand_noise[x][y]) / dist_to_air, (20 + sand_noise[x][y]) / dist_to_air, (10 + sand_noise[x][y]) / dist_to_air]
+
             color[0] *= 1.5
             color[1] *= 1.5
             color[2] *= 1.5

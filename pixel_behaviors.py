@@ -8,46 +8,50 @@ class SteamBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):
         if ((grid.pixels[x][y - 1] != 0) or y < 1) and grid.pixels[x][y + 1] == 0 and random.randrange(1, 100) == 1:          
             grid.intermediate_grid[x][y] = 2
-        elif grid.pixels[x][y + 1] == 0 and random.randrange(1, 1000) == 1:
-            can_strike = True
-            for i in range(grid.height - y):
-                if grid.pixels[x][y - 1] == 3:
-                    continue
-                elif grid.pixels[x][y - 1] != 0:
-                    
-                    break
-                else:
-                    can_strike = False
-                    break
-            if can_strike:
-                n_x = x
-                n_y = y
-                for i in range(100):
-                    can_fall_left = False
-                    can_fall_right = False
-                    if grid.pixels[n_x + 1][n_y + 1] == 0:
-                        can_fall_right = True
-                    if grid.pixels[n_x - 1][n_y + 1] == 0:
-                        can_fall_left = True
-                    if can_fall_left and can_fall_right:              
-                        n_x += random.choice([-1, 1])
-                        n_y += 1
-                    elif can_fall_right:                      
-                        n_x += 1
-                        n_y += 1
-                    elif can_fall_left:                      
-                        n_x -= 1
-                        n_y += 1
-                    if n_x < grid.width - 1 and n_y < grid.height - 1 and n_x > 0:   
-                        grid.intermediate_grid[n_x][n_y] = 13
+            return
+            
+           
+        if grid.pixels[x][y + 1] == 0:
+            if random.randrange(1, 10000) == 1:
+                can_strike = True
+                for i in range(grid.height - y):
+                    if grid.pixels[x][y - 1] == 3:
+                        continue
+                    elif grid.pixels[x][y - 1] != 0:
+                        
+                        break
                     else:
+                        can_strike = False
                         break
-                    if grid.pixels[n_x][n_y + 1] != 0 and grid.pixels[n_x][n_y + 1] != 3 and grid.pixels[n_x][n_y + 1] != 2:
-                        for i in range(5):
-                            grid.intermediate_grid[n_x + random.choice([-1, 1])][n_y + random.choice([-1, 1])] = 10
-                        break
-        else:
-            super().update(pixel, x, y, grid)
+                if can_strike:
+                    n_x = x
+                    n_y = y
+                    for i in range(100):
+                        can_fall_left = False
+                        can_fall_right = False
+                        if grid.pixels[n_x + 1][n_y + 1] == 0:
+                            can_fall_right = True
+                        if grid.pixels[n_x - 1][n_y + 1] == 0:
+                            can_fall_left = True
+                        if can_fall_left and can_fall_right:              
+                            n_x += random.choice([-1, 1])
+                            n_y += 1
+                        elif can_fall_right:                      
+                            n_x += 1
+                            n_y += 1
+                        elif can_fall_left:                      
+                            n_x -= 1
+                            n_y += 1
+                        if n_x < grid.width - 1 and n_y < grid.height - 1 and n_x > 0:   
+                            grid.intermediate_grid[n_x][n_y] = 13
+                        else:
+                            break
+                        if grid.pixels[n_x][n_y + 1] != 0 and grid.pixels[n_x][n_y + 1] != 3 and grid.pixels[n_x][n_y + 1] != 2 and grid.pixels[n_x][n_y + 1] != 13:
+                            print(grid.pixels[n_x][n_y + 1])
+                            for i in range(5):
+                                grid.intermediate_grid[n_x + random.choice([-1, 1])][n_y + random.choice([-1, 1])] = 10
+                            break
+        super().update(pixel, x, y, grid)
 
 class WaterBehavior(LiquidBehavior):
     def update(self, pixel, x, y, grid):
@@ -58,6 +62,12 @@ class WaterBehavior(LiquidBehavior):
                     if grid.pixels[x][y + i] == 1:
                         if random.randrange(1, 2 + i * 100) < 10:
                             grid.intermediate_grid[x][y + i] = 6 #make dirt from sand under water
+                            grid.intermediate_grid[x][y] = 0
+                            became_dirt = True
+                            break
+                    elif grid.pixels[x][y + i] == 15:
+                        if random.randrange(1, 50) == 1:
+                            grid.intermediate_grid[x][y + i] = 6 #make dirt from ash under water
                             grid.intermediate_grid[x][y] = 0
                             became_dirt = True
                             break
@@ -100,13 +110,13 @@ class LavaBehavior(LiquidBehavior):
 
         if touching_wood != None:
             wx, wy = touching_wood
-            grid.intermediate_grid[wx][wy] = 10
+            grid.intermediate_grid[wx][wy] = 14
         if touching_leaves != None:
             wx, wy = touching_leaves
-            grid.intermediate_grid[wx][wy] = 10
+            grid.intermediate_grid[wx][wy] = 14
         if touching_grass != None:
             wx, wy = touching_grass
-            grid.intermediate_grid[wx][wy] = 10
+            grid.intermediate_grid[wx][wy] = 14
         
         if random.randrange(1, 300) == 1:
             turned_to_stone = True
@@ -119,23 +129,27 @@ class LavaBehavior(LiquidBehavior):
 class DirtBehavior(SandBehavior):
     def update(self, pixel, x, y, grid):
         super().update(pixel, x, y, grid)
-        can_spawn = True
+        can_spawn_grass = True
+        can_spawn_tree = True
         for i in range(grid.height - y - 1):
             if grid.pixels[x][y + i] == 0:
-                can_spawn = False 
+                can_spawn_Tree = False
+                can_spawn_grass = False
         if grid.pixels[x][y - 1] != 0:
-            can_spawn = False
+            can_spawn_grass = False
+            if grid.pixels[x][y - 1] != 7:
+                can_spawn_tree = False
     
-        if random.randrange(1, 200) == 1 and can_spawn:
+        if random.randrange(1, 10) == 1 and can_spawn_grass:
             for i in range(random.randrange(1, 5)):
                 if y - i > 0:
                     if grid.pixels[x][y - i - 1] == 0:
                         grid.intermediate_grid[x][y - i] = 7
                         pass
-        elif random.randrange(1, 100) == 1 and can_spawn:
-            leaves_width = 5
+        elif random.randrange(1, 1000) == 1 and can_spawn_tree:
+            leaves_width = 10
             leaves_height = 25
-        
+
             for i in range(leaves_width):
                 for j in range(leaves_height):
                     
@@ -143,14 +157,17 @@ class DirtBehavior(SandBehavior):
                     y_coord = y - 5 - j
                     if x_coord > 0 and x_coord < grid.width and y_coord > 0 and y_coord < grid.height:
                         if grid.pixels[x_coord][y_coord] != 0 and grid.pixels[x_coord][y_coord] != 7 and grid.pixels[x_coord][y_coord] != 3 and grid.pixels[x_coord][y_coord] != 2:
-                            can_spawn = False
+                            can_spawn_tree = False
                             break
     
-            if can_spawn:   
-                for i in range(random.randrange(7, 20)):
-                    if grid.pixels[x][y - i] == 0:
-                        grid.intermediate_grid[x][y - i] = 8
-                        break
+            if can_spawn_tree:   
+                for i in range(10):
+                    if y - i > 0:
+                        if grid.pixels[x][y - i] == 7 or grid.pixels[x][y - i] == 0:
+                            grid.intermediate_grid[x][y - i] = 8
+                            if grid.pixels[x][y - i] == 0:
+                                break
+                          
                     # if y - i > 0:
                     #     if i > 10 and random.randrange(1, 5) == 1:
                     #         branch_pos = random.choice([-1, 1])
@@ -177,19 +194,26 @@ class WoodBehavior(FallingBehavior):
             super().update(pixel, x, y, grid)
         
         if grid.pixels[x][y - 1] == 0 and not grid.pixels[x - 1][y - 1] == 8 and not grid.pixels[x + 1][y - 1] == 8:
+            if random.randrange(1, 5) != 1:
+                return
          
             height = 0
+            can_grow = True
             for i in range(grid.height - y):
                 if grid.pixels[x][y + i] == 8:
                     height += 1
+                else:
+                    if grid.pixels[x][y + i] != 6:
+                        can_grow = False
+                    break
             
             branch_side = random.choice([-1, 1])
             # if random.randrange(1, 10) == 1 and not grid.pixels[x + branch_side][y + 1] == 8:
             #     grid.intermediate_grid[x + branch_side][y] = 8
             
-            if height < 15 + grid.random_offsets_x[x]:
+            if can_grow and height < 15 + grid.random_offsets_x[x]:
                 grid.intermediate_grid[x][y - 1] = 8
-            else:
+            elif height >= 15 + grid.random_offsets_x[x]:
                 
                 leaves_width = random.randrange(5, 13, 2)
                 leaves_height = random.randrange(5, 13, 2)
@@ -213,9 +237,29 @@ class WoodBehavior(FallingBehavior):
                                         grid.intermediate_grid[x_coord][y_coord] = 9
                                         pass
 
-class LeafBehavior():
+class LeafBehavior(FallingBehavior):
+    def check_for_support(self, x, y, grid, visited=None, depth=0, max_depth=10):
+        if depth > max_depth:  # Prevent searching too deep
+            return False
+        if visited is None:
+            visited = set()
+        if (x, y) in visited:  # Avoid revisiting pixels
+            return False
+        visited.add((x, y))
+
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 1]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < grid.width and 0 <= ny < grid.height:
+                    if grid.pixels[nx][ny] == 9:  # Wood found, leaf is supported
+                        return True
+                    elif grid.pixels[nx][ny] == 8 and self.check_for_support(nx, ny, grid, visited, depth+1, max_depth):  # Another leaf, keep searching
+                        return True
+        return False
+
     def update(self, pixel, x, y, grid):
-        pass
+        if not self.check_for_support(x, y, grid):
+            super().update(pixel, x, y, grid)
 
 class FireBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):
@@ -233,13 +277,58 @@ class FireBehavior(GasBehavior):
                 if touching_wood != None:
                 
                     wx, wy = touching_wood
-                    grid.intermediate_grid[wx][wy] = 10
+                    grid.intermediate_grid[wx][wy] = 14
                 if touching_leaves != None:
                     wx, wy = touching_leaves
-                    grid.intermediate_grid[wx][wy] = 10
+                    grid.intermediate_grid[wx][wy] = 14
 
             if y > 2: 
                 super().update(pixel, x, y, grid)
+
+class FueledFireBehavior(GasBehavior):
+    def update(self, pixel, x, y, grid):
+        if random.randrange(1, 10) == 1:
+            grid.intermediate_grid[x][y] = 15
+        else:
+            touching_wood = grid.check_around(x, y, 8)
+            touching_leaves = grid.check_around(x, y, 9)
+
+            if touching_wood == None and touching_leaves == None:
+                grid.intermediate_grid[x][y] = 10
+                return
+             
+                    
+
+
+            elif random.randrange(1, 6) == 1:
+                if touching_wood != None:
+                    wx, wy = touching_wood
+                    grid.intermediate_grid[wx][wy] = 14
+                if touching_leaves != None:
+                    wx, wy = touching_leaves
+                    grid.intermediate_grid[wx][wy] = 14
+
+            if y > 2: 
+                super().update(pixel, x, y, grid)
+
+class AshBehavior(SandBehavior):
+    def update(self, pixel, x, y, grid):
+        
+        touching_wood = grid.check_around(x, y, 8)
+        touching_leaves = grid.check_around(x, y, 9)
+
+        if random.randrange(1, 2) == 1:
+            if touching_wood != None:
+                wx, wy = touching_wood
+                grid.intermediate_grid[wx][wy] = 14
+            if touching_leaves != None:
+                wx, wy = touching_leaves
+                grid.intermediate_grid[wx][wy] = 14
+
+
+        super().update(pixel, x, y, grid)
+
+
 
 class SmokeBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):

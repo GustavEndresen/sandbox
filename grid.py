@@ -23,11 +23,12 @@ class Grid:
             return (x - 1, y)
         return None
 
+
     def move_pixel_if_possible(self, x, y, new_x, new_y, pixel_id):
         if 1 <= new_x < self.width - 1 and 1 <= new_y < self.height - 1:
             target_pixel = self.intermediate_grid[new_x][new_y]
             if target_pixel != pixel_id:
-                if target_pixel == 13:
+                if target_pixel == 13 or target_pixel == 15:
                     return False
                 if target_pixel == 8 and new_x != x:
                     return False
@@ -76,7 +77,9 @@ class Grid:
             FireBehavior(),         #10
             SmokeBehavior(),        #11
             DynamiteBehavior(),     #12
-            ElectricityBehavior()   #13
+            ElectricityBehavior(),  #13
+            FueledFireBehavior(),   #14
+            AshBehavior()           #15
         ]
         for x, y in update_order:
             pixel = self.pixels[x][y] 
