@@ -10,7 +10,6 @@ class SteamBehavior(GasBehavior):
             grid.intermediate_grid[x][y] = 2
             return
             
-           
         if grid.pixels[x][y + 1] == 0:
             if random.randrange(1, 10000) == 1:
                 can_strike = True
@@ -213,6 +212,9 @@ class WoodBehavior(FallingBehavior):
             
             if can_grow and height < 15 + grid.random_offsets_x[x]:
                 grid.intermediate_grid[x][y - 1] = 8
+                if random.randrange(1, 5) == 1:
+                    grid.intermediate_grid[x + random.choice([-1, 1])][y] = 8
+            
             elif height >= 15 + grid.random_offsets_x[x]:
                 
                 leaves_width = random.randrange(5, 13, 2)
@@ -238,29 +240,10 @@ class WoodBehavior(FallingBehavior):
                                         pass
 
 class LeafBehavior(FallingBehavior):
-    def check_for_support(self, x, y, grid, visited=None, depth=0, max_depth=10):
-        if depth > max_depth:  # Prevent searching too deep
-            return False
-        if visited is None:
-            visited = set()
-        if (x, y) in visited:  # Avoid revisiting pixels
-            return False
-        visited.add((x, y))
-
-        for dx in [-1, 0, 1]:
-            for dy in [-1, 1]:
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < grid.width and 0 <= ny < grid.height:
-                    if grid.pixels[nx][ny] == 9:  # Wood found, leaf is supported
-                        return True
-                    elif grid.pixels[nx][ny] == 8 and self.check_for_support(nx, ny, grid, visited, depth+1, max_depth):  # Another leaf, keep searching
-                        return True
-        return False
-
     def update(self, pixel, x, y, grid):
-        if not self.check_for_support(x, y, grid):
+        if grid.check_around(x, y, 9) == None:
             super().update(pixel, x, y, grid)
-
+            
 class FireBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):
         if random.randrange(1, 10) == 1:
@@ -268,18 +251,22 @@ class FireBehavior(GasBehavior):
         else:
             touching_wood = grid.check_around(x, y, 8)
             touching_leaves = grid.check_around(x, y, 9)
+            touching_grass = grid.check_around(x, y, 7)
 
-            if touching_wood == None and touching_leaves == None:
+            if touching_wood == None and touching_leaves == None and touching_grass == None:
                 if RisingBehavior().update(pixel, x, y, grid):
                     y -= 1
 
-            elif random.randrange(1, 5) == 1:
+            elif random.randrange(1, 2) == 1:
                 if touching_wood != None:
                 
                     wx, wy = touching_wood
                     grid.intermediate_grid[wx][wy] = 14
                 if touching_leaves != None:
                     wx, wy = touching_leaves
+                    grid.intermediate_grid[wx][wy] = 14
+                if touching_grass != None:
+                    wx, wy = touching_grass
                     grid.intermediate_grid[wx][wy] = 14
 
             if y > 2: 
@@ -296,9 +283,6 @@ class FueledFireBehavior(GasBehavior):
             if touching_wood == None and touching_leaves == None:
                 grid.intermediate_grid[x][y] = 10
                 return
-             
-                    
-
 
             elif random.randrange(1, 6) == 1:
                 if touching_wood != None:

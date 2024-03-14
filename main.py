@@ -6,8 +6,8 @@ from copy import deepcopy
 from grid import Grid
 pg.init()
 
-GAME_WIDTH, GAME_HEIGHT = 150, 100
-SCALING = 7
+GAME_WIDTH, GAME_HEIGHT = 400, 50
+SCALING = 3
 SCREEN_WIDTH, SCREEN_HEIGHT = GAME_WIDTH*SCALING, GAME_HEIGHT*SCALING
 
 SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -97,6 +97,15 @@ def render(grid):
                 color[2] = 255
             color = (int(color[0]), int(color[1]), int(color[2]))
             np_pixels[x, y] = color
+
+    # for x in range(grid.width):
+    #     for y in range(grid.height):
+    #         color = (255, 255, 255)
+    #         pixel = grid.pixels[x][y]
+    #         if pixel != 0:
+    #             color = (0, 0, 0)
+    #         np_pixels[x, y] = color
+
 
     initial_surface = pg.Surface((GAME_WIDTH, GAME_HEIGHT))
     pg.surfarray.blit_array(initial_surface, np_pixels)
