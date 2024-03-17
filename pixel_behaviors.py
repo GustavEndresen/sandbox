@@ -6,9 +6,13 @@ import numpy as np
 #level 3 subclasses
 class SteamBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):
-        if ((grid.pixels[x][y - 1] != 0) or y < 1) and grid.pixels[x][y + 1] == 0 and random.randrange(1, 100) == 1:          
-            grid.intermediate_grid[x][y] = 2
-            return
+        if ((grid.pixels[x][y - 1] != 0) or y < 2) and grid.pixels[x][y + 1] == 0:      
+            if random.randrange(1, 100) == 1: 
+                if grid.temperature > 0:
+                    grid.intermediate_grid[x][y] = 2
+                else:
+                    grid.intermediate_grid[x][y] = 16
+                return
             
         if grid.pixels[x][y + 1] == 0:
             if random.randrange(1, 10000) == 1:
@@ -46,7 +50,6 @@ class SteamBehavior(GasBehavior):
                         else:
                             break
                         if grid.pixels[n_x][n_y + 1] != 0 and grid.pixels[n_x][n_y + 1] != 3 and grid.pixels[n_x][n_y + 1] != 2 and grid.pixels[n_x][n_y + 1] != 13:
-                            print(grid.pixels[n_x][n_y + 1])
                             for i in range(5):
                                 grid.intermediate_grid[n_x + random.choice([-1, 1])][n_y + random.choice([-1, 1])] = 10
                             break
@@ -54,7 +57,13 @@ class SteamBehavior(GasBehavior):
 
 class WaterBehavior(LiquidBehavior):
     def update(self, pixel, x, y, grid):
+        #freezing logic
+        if (grid.pixels[x][y + 1] != 0 or y == grid.height - 1) and grid.pixels[x][y - 1] == 0 and grid.pixels[x - 1][y] != 0 and grid.pixels[x + 1][y] != 0 and grid.temperature < 0:
+            if random.randrange(1, int(1000 / -grid.temperature + 1)) == 1:
+                grid.intermediate_grid[x][y] = 17 #ice
+                return
         became_dirt = False
+
         if not grid.pixels[x][y + 1] == 1:
             for i in range(10):
                 if y + i < grid.height:
@@ -76,7 +85,7 @@ class WaterBehavior(LiquidBehavior):
             should_evaporate = False
         
             if grid.pixels[x][y - 1] == 0 and grid.pixels[x][y + 1] != 0:
-                should_evaporate = (random.randrange(1, 100) == 1)
+                should_evaporate = (random.randrange(1, 10000) == 1)
         
             if should_evaporate:
                 
@@ -117,10 +126,10 @@ class LavaBehavior(LiquidBehavior):
             wx, wy = touching_grass
             grid.intermediate_grid[wx][wy] = 14
         
-        if random.randrange(1, 300) == 1:
-            turned_to_stone = True
-        if turned_to_stone:
-            grid.intermediate_grid[x][y] = 4
+        # if random.randrange(1, 300) == 1:
+        #     turned_to_stone = True
+        # if turned_to_stone:
+        #     grid.intermediate_grid[x][y] = 4
 
         else:
             super().update(pixel, x, y, grid)
@@ -181,7 +190,7 @@ class DirtBehavior(SandBehavior):
 class GrassBehavior(FallingBehavior):
     def update(self, pixel, x, y, grid):
         if not super().update(pixel, x, y, grid):
-            if (grid.pixels[x][y - 1] != 0 and grid.pixels[x][y - 1] != 7 and random.randrange(1, 50) == 1) or grid.pixels[x][y - 1] == 5:
+            if (grid.pixels[x][y - 1] != 0 and grid.pixels[x][y - 1] != 7 and random.randrange(1, 25) == 1) or grid.pixels[x][y - 1] == 5:
                 grid.intermediate_grid[x][y] = 6
             elif y > grid.height - 1 and grid.pixels[x][y + 1] != 7 and grid.pixels[x][y + 1] != 6:
                 grid.intermediate_grid[x][y] = 0
@@ -251,7 +260,7 @@ class FireBehavior(GasBehavior):
         else:
             touching_wood = grid.check_around(x, y, 8)
             touching_leaves = grid.check_around(x, y, 9)
-            touching_grass = grid.check_around(x, y, 7)
+            touching_grass = grid.check_around(x, y, 7222)
 
             if touching_wood == None and touching_leaves == None and touching_grass == None:
                 if RisingBehavior().update(pixel, x, y, grid):
@@ -274,26 +283,27 @@ class FireBehavior(GasBehavior):
 
 class FueledFireBehavior(GasBehavior):
     def update(self, pixel, x, y, grid):
+       
+        
+        touching_wood = grid.check_around(x, y, 8)
+        touching_leaves = grid.check_around(x, y, 9)
+
+        if touching_wood == None and touching_leaves == None:
+            grid.intermediate_grid[x][y] = 10
+            return
+
+        elif random.randrange(1, 6) == 1:
+            if touching_wood != None:
+                wx, wy = touching_wood
+                grid.intermediate_grid[wx][wy] = 14
+            if touching_leaves != None:
+                wx, wy = touching_leaves
+                grid.intermediate_grid[wx][wy] = 14
+
+        if y > 2: 
+            super().update(pixel, x, y, grid)
         if random.randrange(1, 10) == 1:
             grid.intermediate_grid[x][y] = 15
-        else:
-            touching_wood = grid.check_around(x, y, 8)
-            touching_leaves = grid.check_around(x, y, 9)
-
-            if touching_wood == None and touching_leaves == None:
-                grid.intermediate_grid[x][y] = 10
-                return
-
-            elif random.randrange(1, 6) == 1:
-                if touching_wood != None:
-                    wx, wy = touching_wood
-                    grid.intermediate_grid[wx][wy] = 14
-                if touching_leaves != None:
-                    wx, wy = touching_leaves
-                    grid.intermediate_grid[wx][wy] = 14
-
-            if y > 2: 
-                super().update(pixel, x, y, grid)
 
 class AshBehavior(SandBehavior):
     def update(self, pixel, x, y, grid):
@@ -369,3 +379,25 @@ class DynamiteBehavior(FallingBehavior):
 class ElectricityBehavior():
     def update(self, pixel, x, y, grid):
         grid.intermediate_grid[x][y] = 0
+
+class SnowBehavior(SandBehavior):
+    def update(self, pixel, x, y, grid):
+       
+        if grid.temperature > 0:
+            if random.randrange(1, int(500 / grid.temperature + 1)) == 1:
+                grid.intermediate_grid[x][y] = 2
+
+        super().update(pixel, x, y, grid)
+
+class IceBehavior(FallingBehavior):
+    def update(self, pixel, x, y, grid):
+       
+        
+        if grid.temperature > 0:
+            if random.randrange(1, int(500 / grid.temperature + 1)) == 1:
+                grid.intermediate_grid[x][y] = 2
+      
+        if grid.pixels[x][y - 1] == 2:
+            grid.move_pixel_if_possible(x, y, x, y - 1, pixel)
+        else:
+            super().update(pixel, x, y, grid)

@@ -10,6 +10,7 @@ class Grid:
         self.intermediate_grid = []
         self.random_offsets_x = [random.randrange(-5, 5) for _ in range(self.width)]
         self.pixels = [[0 for _ in range(self.height)] for _ in range(self.width)]
+        self.temperature = 2
     
     def check_around(self, x, y, target):
     
@@ -27,6 +28,7 @@ class Grid:
     def move_pixel_if_possible(self, x, y, new_x, new_y, pixel_id):
         if 1 <= new_x < self.width - 1 and 1 <= new_y < self.height - 1:
             target_pixel = self.intermediate_grid[new_x][new_y]
+       
             if target_pixel != pixel_id:
                 if target_pixel == 13 or target_pixel == 15:
                     return False
@@ -37,7 +39,7 @@ class Grid:
                     self.intermediate_grid[x][y] = 0
                     return True
                 if target_pixel == 2 or target_pixel == 5:
-                    if pixel_id == 1 or pixel_id == 3 or pixel_id == 6 or pixel_id == 4:
+                    if pixel_id == 1 or pixel_id == 3 or pixel_id == 6 or pixel_id == 4 or pixel_id == 17 or pixel_id == 15 or pixel_id == 7 or pixel_id == 9:
                         self.intermediate_grid[new_x][new_y] = pixel_id
                         self.intermediate_grid[x][y] = target_pixel
                         return True
@@ -79,7 +81,9 @@ class Grid:
             DynamiteBehavior(),     #12
             ElectricityBehavior(),  #13
             FueledFireBehavior(),   #14
-            AshBehavior()           #15
+            AshBehavior(),          #15
+            SnowBehavior(),         #16
+            IceBehavior(),          #17
         ]
         for x, y in update_order:
             pixel = self.pixels[x][y] 
