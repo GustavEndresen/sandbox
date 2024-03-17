@@ -47,10 +47,10 @@ class LiquidBehavior(FallingBehavior):
                     left_count = 0
                     for i in range(horizontal_depth):
                         if x + i < grid.width:
-                            if grid.pixels[x + i][y] == 2:
+                            if grid.pixels[x + i][y] == pixel:
                                 right_count += 1
                         if x - i > 0:
-                            if grid.pixels[x - i][y] == 2:
+                            if grid.pixels[x - i][y] == pixel:
                                 left_count += 1
                     move_dir = 0
                     if right_count > left_count:
@@ -128,3 +128,19 @@ class GasBehavior(RisingBehavior):
                 grid.move_pixel_if_possible(x, y, x - 1, y, pixel)
             elif can_move_right:
                 grid.move_pixel_if_possible(x, y, x + 1, y, pixel)
+
+class FlammableBehavior():
+    def update(self, pixel, x, y, grid):
+        if grid.temperature > 30:
+            if random.randrange(1, int((2000 / grid.temperature) * 100)) == 1:
+                grid.intermediate_grid[x][y] = 14
+                return True
+        return False
+
+class MeltableBehavior():
+    def update(self, pixel, x, y, grid):
+        if grid.temperature > 0:
+            if random.randrange(1, int(500 / grid.temperature + 1)) == 1:
+                grid.intermediate_grid[x][y] = 2
+                return True
+        return False

@@ -10,7 +10,7 @@ class Grid:
         self.intermediate_grid = []
         self.random_offsets_x = [random.randrange(-5, 5) for _ in range(self.width)]
         self.pixels = [[0 for _ in range(self.height)] for _ in range(self.width)]
-        self.temperature = 2
+        self.temperature = 25
     
     def check_around(self, x, y, target):
     

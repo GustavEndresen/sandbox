@@ -67,11 +67,12 @@ def render(grid):
                 elif pixel == 6:
                     color = [int(150 / dist_to_air), int((100 + sand_noise[x][y] * 2) / dist_to_air), int(50 / dist_to_air)]
                 elif pixel == 7:
-                    color = [int(20 / dist_to_air) - np.min([0, grid.temperature]) * 10, int((220 + sand_noise[x][y] * 2) / dist_to_air), int(50 / dist_to_air) - np.min([0, grid.temperature]) * 10]
+                    color = [(20 - np.min([0, grid.temperature]) * 10) / dist_to_air, int((250 + sand_noise[x][y] * 2) / dist_to_air), (50 - np.min([0, grid.temperature]) * 10) / dist_to_air]
                 elif pixel == 8:
                     color = [int(200 / dist_to_air), int((150 + sand_noise[x][y]) / dist_to_air), int(50 / dist_to_air)]
                 elif pixel == 9:
-                    color = [(20) / dist_to_air - np.min([0, grid.temperature]) * 10, int((220 + sand_noise[x][y] * 2) / dist_to_air), int(50 / dist_to_air) - np.min([0, grid.temperature]) * 10]
+                    color = [(20 - np.min([0, grid.temperature]) * 10) / dist_to_air, int((250 + sand_noise[x][y] * 2) / dist_to_air), (50 - np.min([0, grid.temperature]) * 10) / dist_to_air]
+
                 elif pixel == 10:
                     color = [255, 70 + sand_noise[x][y] * 2, 10]
                 elif pixel == 11:
@@ -165,10 +166,10 @@ while running:
                 pixel_type = 12
             elif event.key == pg.K_e:
                 pixel_type = 13
+            elif event.key == pg.K_s:
+                active_grid.temperature -= 5
             elif event.key == pg.K_a:
-                active_grid.temperature -= 1
-            elif event.key == pg.K_a:
-                active_grid.temperature += 1
+                active_grid.temperature += 5
 
     mouse_pos = pg.mouse.get_pos()
     for i in range(1):
