@@ -6,8 +6,8 @@ from copy import deepcopy
 from grid import Grid
 pg.init()
 
-GAME_WIDTH, GAME_HEIGHT = 150, 100
-SCALING = 6
+GAME_WIDTH, GAME_HEIGHT = 200, 100
+SCALING = 5
 SCREEN_WIDTH, SCREEN_HEIGHT = GAME_WIDTH*SCALING, GAME_HEIGHT*SCALING
 
 SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -28,6 +28,37 @@ def render(grid):
     total_water = 0
   
     np_pixels = np.zeros((GAME_WIDTH, GAME_HEIGHT, 3), dtype=np.uint8)
+
+    def lerp(color1, color2, factor):
+        """Linearly interpolate between two colors."""
+        return [int(a + (b - a) * factor) for a, b in zip(color1, color2)]
+    
+    def get_color(value):
+        """Convert a value in the range -50 to 50 to an RGB color."""
+        if value < -50:
+            value = -50
+        elif value > 50:
+            value = 50
+        
+        white = (220, 255, 230)
+        green = (0, 230, 0)
+        brown = (100, 90, 90)
+        light_brown = [205, 133, 63]  # A lighter brown for intermediate transition
+      
+        
+        if value < -25:
+            # Scale factor between 0 and 1 for the transition from white to light brown
+            factor = (value + 50) / 25
+            return lerp(white, light_brown, factor)
+        elif value < 0:
+            # Scale factor between 0 and 1 for the transition from light brown to green
+            factor = (value + 25) / 25
+            return lerp(light_brown, green, factor)
+        else:
+            # Scale factor between 0 and 1 for the transition from green to brown
+            factor = value / 50
+            return lerp(green, brown, factor)
+    
     for x in range(grid.width):
         for y in range(grid.height):
             pixel = grid.pixels[x][y]
@@ -67,14 +98,16 @@ def render(grid):
                 elif pixel == 6:
                     color = [int(150 / dist_to_air), int((100 + sand_noise[x][y] * 2) / dist_to_air), int(50 / dist_to_air)]
                 elif pixel == 7:
-                    color = [(20 - np.min([0, grid.temperature]) * 10) / dist_to_air, int((250 + sand_noise[x][y] * 2) / dist_to_air), (50 - np.min([0, grid.temperature]) * 10) / dist_to_air]
+                    c = get_color(grid.temperature)
+                    color = [c[0] / dist_to_air, c[1] / dist_to_air, c[2] / dist_to_air]
                 elif pixel == 8:
                     color = [int(200 / dist_to_air), int((150 + sand_noise[x][y]) / dist_to_air), int(50 / dist_to_air)]
                 elif pixel == 9:
-                    color = [(20 - np.min([0, grid.temperature]) * 10) / dist_to_air, int((250 + sand_noise[x][y] * 2) / dist_to_air), (50 - np.min([0, grid.temperature]) * 10) / dist_to_air]
+                    c = get_color(grid.temperature)
+                    color = [c[0] / dist_to_air, c[1] / dist_to_air, c[2] / dist_to_air]
 
                 elif pixel == 10:
-                    color = [255, 70 + sand_noise[x][y] * 2, 10]
+                    color = [240, 70 + sand_noise[x][y] * 2, 10]
                 elif pixel == 11:
                     color = [(10 + sand_noise[x][y]) / dist_to_air, (10 + sand_noise[x][y]) / dist_to_air, (10 + sand_noise[x][y]) / dist_to_air]
                 elif pixel == 12:
@@ -82,13 +115,15 @@ def render(grid):
                 elif pixel == 13:
                     color = [255, 255, 0]
                 elif pixel == 14:
-                    color = [255, 20 + sand_noise[x][y] * 2, 0]
+                    color = [255, 10 + sand_noise[x][y] / 2, 0]
                 elif pixel == 15:
                     color = [(20 + sand_noise[x][y]) / dist_to_air, (20 + sand_noise[x][y]) / dist_to_air, (10 + sand_noise[x][y]) / dist_to_air]
                 elif pixel == 16:
                     color = [(255) / dist_to_air, (255) / dist_to_air, (255) / dist_to_air]
                 elif pixel == 17:
                     color = [(105) / dist_to_air, (240) / dist_to_air, (255) / dist_to_air]
+                elif pixel == 18:
+                    color = [(30 + sand_noise[x][y]) / dist_to_air, (30 + sand_noise[x][y]) / dist_to_air, (40 + sand_noise[x][y]) / dist_to_air]
 
             # color[0] *= 1.5
             # color[1] *= 1.5
@@ -167,7 +202,7 @@ while running:
             elif event.key == pg.K_e:
                 pixel_type = 13
             elif event.key == pg.K_s:
-                active_grid.temperature -= 5
+                active_grid.temperature -= 5 
             elif event.key == pg.K_a:
                 active_grid.temperature += 5
 

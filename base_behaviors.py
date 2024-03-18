@@ -1,6 +1,7 @@
 from pygame import Vector2
 import random
 import numpy as np
+from pixel_types import PT
 
 #level 1 superclasses
 class FallingBehavior:
@@ -19,9 +20,9 @@ class SandBehavior(FallingBehavior):
             can_fall_right = False
             can_fall_left = False
             if y < grid.height - 2:
-                if grid.pixels[x + 1][y + 1] == 0 or grid.pixels[x + 1][y + 1] == 2:
+                if grid.pixels[x + 1][y + 1] == PT.AIR.value or grid.pixels[x + 1][y + 1] == PT.WATER.value:
                     can_fall_right = True
-                if grid.pixels[x - 1][y + 1] == 0 or grid.pixels[x - 1][y + 1] == 2:
+                if grid.pixels[x - 1][y + 1] == PT.AIR.value or grid.pixels[x - 1][y + 1] == PT.WATER.value:
                     can_fall_left = True
                 if can_fall_left and can_fall_right:              
                     grid.move_pixel_if_possible(x, y, x + random.randrange(0, 2) * 2 - 1, y, pixel)
@@ -36,9 +37,9 @@ class LiquidBehavior(FallingBehavior):
             can_move_right = False
             can_move_left = False
             if y < grid.height - 1:
-                if grid.pixels[x + 1][y] == 0 or grid.pixels[x + 1][y] == 3:
+                if grid.pixels[x + 1][y] == PT.AIR.value or grid.pixels[x + 1][y] == PT.STEAM.value:
                     can_move_right = True
-                if grid.pixels[x - 1][y] == 0 or grid.pixels[x - 1][y] == 3:
+                if grid.pixels[x - 1][y] == PT.AIR.value or grid.pixels[x - 1][y] == PT.STEAM.value:
                     can_move_left = True
                     
                 if can_move_right and can_move_left:
@@ -97,7 +98,7 @@ class LiquidBehavior(FallingBehavior):
 
 #     def is_valid_move(self, x, y, grid):
 #         if 0 <= x < grid.width and 0 <= y < grid.height:
-#             return grid.pixels[x][y] == 0  # Check if the spot is empty
+#             return grid.pixels[x][y] == PT.AIR.value  # Check if the spot is empty
 #         return False
 
 
@@ -116,9 +117,9 @@ class GasBehavior(RisingBehavior):
         can_move_right = False
         can_move_left = False
         if y > 2:
-            if grid.pixels[x + 1][y] == 0:
+            if grid.pixels[x + 1][y] == PT.AIR.value:
                 can_move_right = True
-            if grid.pixels[x - 1][y] == 0:
+            if grid.pixels[x - 1][y] == PT.AIR.value:
                 can_move_left = True
             
                 
@@ -132,15 +133,15 @@ class GasBehavior(RisingBehavior):
 class FlammableBehavior():
     def update(self, pixel, x, y, grid):
         if grid.temperature > 30:
-            if random.randrange(1, int((2000 / grid.temperature) * 100)) == 1:
-                grid.intermediate_grid[x][y] = 14
+            if random.randrange(1, int((2000 / grid.temperature) * 100)) == PT.SAND.value:
+                grid.intermediate_grid[x][y] = PT.FUELEDFIRE.value
                 return True
         return False
 
 class MeltableBehavior():
     def update(self, pixel, x, y, grid):
         if grid.temperature > 0:
-            if random.randrange(1, int(500 / grid.temperature + 1)) == 1:
-                grid.intermediate_grid[x][y] = 2
+            if random.randrange(1, int(500 / grid.temperature + 1)) == PT.SAND.value:
+                grid.intermediate_grid[x][y] = PT.WATER.value
                 return True
         return False

@@ -30,25 +30,25 @@ class Grid:
             target_pixel = self.intermediate_grid[new_x][new_y]
        
             if target_pixel != pixel_id:
-                if target_pixel == 13 or target_pixel == 15:
+                if target_pixel == PT.ELECTRICITY.value or target_pixel == PT.HOTASH.value:
                     return False
-                if target_pixel == 8 and new_x != x:
+                if target_pixel == PT.WOOD.value and new_x != x:
                     return False
-                if target_pixel == 0:
+                if target_pixel == PT.AIR.value:
                     self.intermediate_grid[new_x][new_y] = pixel_id
                     self.intermediate_grid[x][y] = 0
                     return True
-                if target_pixel == 2 or target_pixel == 5:
-                    if pixel_id == 1 or pixel_id == 3 or pixel_id == 6 or pixel_id == 4 or pixel_id == 17 or pixel_id == 15 or pixel_id == 7 or pixel_id == 9:
+                if target_pixel == 2 or target_pixel == PT.LAVA.value:
+                    if pixel_id == PT.SAND.value or pixel_id == PT.STEAM.value or pixel_id == PT.DIRT.value or pixel_id == PT.STONE.value or pixel_id == PT.ICE.value or pixel_id == PT.HOTASH.value or pixel_id == PT.GRASS.value or pixel_id == PT.LEAVES.value:
                         self.intermediate_grid[new_x][new_y] = pixel_id
                         self.intermediate_grid[x][y] = target_pixel
                         return True
                 if target_pixel != 0:
-                    if (pixel_id == 3 or (pixel_id == 5 and new_y < y) or pixel_id == 11) and not (target_pixel == 3 or target_pixel == 5 or target_pixel == 11): #swap positions if fire, steam or smoke                        
+                    if (pixel_id == PT.STEAM.value or (pixel_id == PT.LAVA.value and new_y < y) or pixel_id == PT.SMOKE.value) and not (target_pixel == PT.STEAM.value or target_pixel == PT.LAVA.value or target_pixel == PT.SMOKE.value): #swap positions if fire, steam or smoke                        
                         self.intermediate_grid[new_x][new_y] = pixel_id
                         self.intermediate_grid[x][y] = target_pixel
                         return True
-                if target_pixel == 3:
+                if target_pixel == PT.STEAM.value:
                     if pixel_id == 2 or new_y > y:
                         self.intermediate_grid[new_x][new_y] = pixel_id
                         self.intermediate_grid[x][y] = target_pixel
@@ -81,10 +81,12 @@ class Grid:
             DynamiteBehavior(),     #12
             ElectricityBehavior(),  #13
             FueledFireBehavior(),   #14
-            AshBehavior(),          #15
+            HotAshBehavior(),       #15
             SnowBehavior(),         #16
             IceBehavior(),          #17
+            AshBehavior(),
         ]
+
         for x, y in update_order:
             pixel = self.pixels[x][y] 
             if pixel > 0 and pixel <= len(behaviors): 
